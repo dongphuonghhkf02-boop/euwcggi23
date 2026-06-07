@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../App';
 import { useLang } from '../i18n';
@@ -36,18 +36,24 @@ const Layout = () => {
   });
 
   useEffect(() => {
-    setIsMobileMenuOpen(false);
+    // Defer so we don't dispatch state updates synchronously from the effect.
+    const id = setTimeout(() => setIsMobileMenuOpen(false), 0);
+    return () => clearTimeout(id);
   }, [location.pathname]);
 
+  const mobileMenuOpenRef = useRef(false);
+  useEffect(() => { mobileMenuOpenRef.current = isMobileMenuOpen; }, [isMobileMenuOpen]);
+
+  const handleEscape = useCallback((e) => {
+    if (e.key === 'Escape' && mobileMenuOpenRef.current) {
+      setIsMobileMenuOpen(false);
+    }
+  }, []);
+
   useEffect(() => {
-    const handleEscape = (e) => {
-      if (e.key === 'Escape') {
-        setIsMobileMenuOpen(false);
-      }
-    };
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
-  }, []);
+  }, [handleEscape]);
 
   const searchItems = [
     { path: '/admin', label: 'Панель', keywords: ['dashboard', 'панель'] },

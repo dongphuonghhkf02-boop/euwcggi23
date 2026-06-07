@@ -228,9 +228,9 @@ const formatTimeAgo = (date) => {
   const days = Math.floor(diff / 86400000);
 
   if (minutes < 1) return 'Just now';
-  if (minutes < 60) return `${minutes} ${t('i18n_min_ago_f39f5e')}`;
-  if (hours < 24) return `${hours} ${t('i18n_h_ago_fb5957')}`;
-  if (days < 7) return `${days} ${t('i18n_d_ago_83ccfb')}`;
+  if (minutes < 60) return `${minutes} min ago`;
+  if (hours < 24) return `${hours} h ago`;
+  if (days < 7) return `${days} d ago`;
   return new Date(date).toLocaleDateString('uk-UA');
 };
 
@@ -338,16 +338,20 @@ const AdminNotifications = ({ token }) => {
 
   // Initial load and polling
   useEffect(() => {
-    fetchUnreadCount();
-    const interval = setInterval(fetchUnreadCount, 30000); // Poll every 30 seconds
-    return () => clearInterval(interval);
+    let cancelled = false;
+    const tick = async () => { if (!cancelled) await fetchUnreadCount(); };
+    tick();
+    const interval = setInterval(tick, 30000); // Poll every 30 seconds
+    return () => { cancelled = true; clearInterval(interval); };
   }, [fetchUnreadCount]);
 
   // Fetch full list when dropdown opens
   useEffect(() => {
-    if (isOpen) {
-      fetchNotifications();
-    }
+    let cancelled = false;
+    (async () => {
+      if (isOpen && !cancelled) await fetchNotifications();
+    })();
+    return () => { cancelled = true; };
   }, [isOpen, fetchNotifications]);
 
   // Close dropdown on outside click

@@ -18,7 +18,7 @@
  * (NotificationsPage/Settings/Hub).
  */
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { Toaster } from 'sonner';
@@ -109,15 +109,43 @@ const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem('token'));
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      fetchUser();
-    } else {
+  const logout = useCallback(async () => {
+    try {
+      await axios.post(`${API_URL}/api/auth/logout`, {});
+    } catch {
+      /* ignore */
+    }
+    localStorage.removeItem('token');
+    delete axios.defaults.headers.common['Authorization'];
+    setToken(null);
+    setUser(null);
+  }, []);
+
+  const fetchUser = useCallback(async () => {
+    try {
+      const res = await axios.get(`${API_URL}/api/auth/me`);
+      setUser(res.data);
+    } catch (err) {
+      if (err.response?.status === 401) {
+        logout();
+      }
+    } finally {
       setLoading(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token]);
+  }, [logout]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      if (token) {
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        if (!cancelled) await fetchUser();
+      } else if (!cancelled) {
+        setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [token, fetchUser]);
 
   useEffect(() => {
     const interceptor = axios.interceptors.response.use(
@@ -131,61 +159,40 @@ const AuthProvider = ({ children }) => {
       }
     );
     return () => axios.interceptors.response.eject(interceptor);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [logout]);
 
-  const fetchUser = async () => {
-    try {
-      const res = await axios.get(`${API_URL}/api/auth/me`);
-      setUser(res.data);
-    } catch (err) {
-      if (err.response?.status === 401) {
-        logout();
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const login = async (email, password) => {
+  const login = useCallback(async (email, password) => {
     const res = await axios.post(`${API_URL}/api/auth/login`, { email, password });
     const data = res.data || {};
     if (data.challenge) {
       return { __challenge: true, ...data };
     }
-    const { access_token, user } = data;
+    const { access_token, user: u } = data;
     localStorage.setItem('token', access_token);
     axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
     setToken(access_token);
-    setUser(user);
-    return user;
-  };
+    setUser(u);
+    return u;
+  }, []);
 
-  const completeChallenge = async (path, body) => {
+  const completeChallenge = useCallback(async (path, body) => {
     const res = await axios.post(`${API_URL}${path}`, body);
-    const { access_token, user } = res.data || {};
+    const { access_token, user: u } = res.data || {};
     if (!access_token) throw new Error('No access_token in challenge response');
     localStorage.setItem('token', access_token);
     axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
     setToken(access_token);
-    setUser(user);
-    return user;
-  };
+    setUser(u);
+    return u;
+  }, []);
 
-  const logout = async () => {
-    try {
-      await axios.post(`${API_URL}/api/auth/logout`, {});
-    } catch {
-      /* ignore */
-    }
-    localStorage.removeItem('token');
-    delete axios.defaults.headers.common['Authorization'];
-    setToken(null);
-    setUser(null);
-  };
+  const contextValue = useMemo(
+    () => ({ user, token, login, logout, loading, completeChallenge }),
+    [user, token, login, logout, loading, completeChallenge]
+  );
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, loading, completeChallenge }}>
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );

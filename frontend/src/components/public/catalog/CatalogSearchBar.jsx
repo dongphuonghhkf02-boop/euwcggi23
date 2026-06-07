@@ -53,7 +53,7 @@ export const CatalogSearchBar = ({ className = '' }) => {
       <input
         className={styles.input}
         type="text"
-        placeholder={t('searchByVinPlaceholder') || 'Search by VIN or lot number'}
+        placeholder={t('searchByVinPlaceholder') || 'Search by VIN'}
         value={query}
         onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
         onFocus={() => setOpen(true)}

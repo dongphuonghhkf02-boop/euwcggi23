@@ -1,0 +1,26 @@
+[
+  {
+    "content": "Fix mobile 'Other brands +' and 'More vehicles +' links pointing to /catalog",
+    "status": "completed"
+  },
+  {
+    "content": "Review before-after-section.jsx line 87 — client quote with 'лотов'",
+    "status": "completed"
+  },
+  {
+    "content": "Check MobileHomePage.jsx vehicle-deals1 mobile analog for 'best lots' subtitle",
+    "status": "completed"
+  },
+  {
+    "content": "Clean up i18n/translations.js (navCatalog, searchByVinPlaceholder EN, cardCopyLot, lotNumber, activeLots, hotLots)",
+    "status": "completed"
+  },
+  {
+    "content": "Update cabinet 'Browse catalog' buttons (FavoritesPage, SharedCarsPage, ComparePage)",
+    "status": "completed"
+  },
+  {
+    "content": "Verify build & visual screenshot",
+    "status": "in_progress"
+  }
+]

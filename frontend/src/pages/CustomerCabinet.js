@@ -389,11 +389,11 @@ export const CabinetDashboard = () => {
           {t('adm_browse_our_catalog_and_choose_your_dream_car')}
         </p>
         <Link
-          to="/catalog"
+          to="/#deals-budget-filter"
           className="inline-flex items-center gap-2 bg-[#18181B] text-white px-6 py-3 rounded-xl font-medium hover:bg-[#27272A]"
         >
           <Car size={18} />
-          {t('adm_view_car') || 'Browse catalog'}
+          {t('adm_view_car') || 'Find a car'}
         </Link>
       </motion.div>
     </div>

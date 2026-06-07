@@ -26,23 +26,23 @@ export default function useInView({
 
   useEffect(() => {
     if (reducedMotion) {
-      setVisible(true);
-      return undefined;
+      const id = setTimeout(() => setVisible(true), 0);
+      return () => clearTimeout(id);
     }
     const el = ref.current;
     if (!el || typeof IntersectionObserver === "undefined") {
-      setVisible(true);
-      return undefined;
+      const id = setTimeout(() => setVisible(true), 0);
+      return () => clearTimeout(id);
     }
 
     const rect = el.getBoundingClientRect();
     const inViewAtMount =
       rect.top < (window.innerHeight || 0) && rect.bottom > 0;
     if (inViewAtMount) {
-      requestAnimationFrame(() => {
+      const raf1 = requestAnimationFrame(() => {
         requestAnimationFrame(() => setVisible(true));
       });
-      return undefined;
+      return () => cancelAnimationFrame(raf1);
     }
 
     const io = new IntersectionObserver(

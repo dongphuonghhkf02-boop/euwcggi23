@@ -259,15 +259,15 @@ export default function ComparePage() {
             Nothing to compare yet
           </h3>
           <p className="text-zinc-400 mb-6 max-w-md mx-auto">
-            Browse the catalog and pick at least two vehicles to see them side-by-side.
+            Pick at least two cars from our selection to see them side-by-side.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <button
-              onClick={() => navigate('/catalog')}
+              onClick={() => navigate('/#deals-budget-filter')}
               className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#FEAE00] text-[#18181B] font-semibold hover:bg-[#E89D00] transition-colors"
               data-testid="compare-empty-open-catalog"
             >
-              <CarIcon size={18} weight="fill" /> Browse catalog
+              <CarIcon size={18} weight="fill" /> Find a car
             </button>
             <button
               onClick={() => navigate(customerId ? `/cabinet/${customerId}/favorites` : '/cabinet/favorites')}
@@ -289,7 +289,7 @@ export default function ComparePage() {
       <CompareHeader
         count={count}
         onClear={clear}
-        onAddCar={canAddMore ? () => navigate('/catalog') : null}
+        onAddCar={canAddMore ? () => navigate('/#deals-budget-filter') : null}
       />
 
       {/* Need-at-least-2 banner — only when exactly 1 car is in the list */}
@@ -303,15 +303,15 @@ export default function ComparePage() {
               Add 1 more car to start comparing
             </p>
             <p className="text-sm text-amber-200/80 mt-0.5">
-              Comparison works with 2 or 3 cars. Pick another vehicle from the catalog.
+              Comparison works with 2 or 3 cars. Pick another vehicle from our selection.
             </p>
           </div>
           <button
-            onClick={() => navigate('/catalog')}
+            onClick={() => navigate('/#deals-budget-filter')}
             className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-amber-500 text-[#18181B] font-semibold text-sm hover:bg-amber-400 transition-colors"
             data-testid="compare-banner-browse"
           >
-            <Plus size={16} /> Browse catalog
+            <Plus size={16} /> Find a car
           </button>
         </div>
       )}

@@ -740,9 +740,9 @@ export default function VinResultPage() {
                   <div className="flex items-center gap-3 text-emerald-400">
                     <CheckCircle2 size={20} />
                     <div>
-                      <div className="font-semibold text-[14px]">You're on the list</div>
+                      <div className="font-semibold text-[14px]">You&apos;re on the list</div>
                       <div className="text-[12px] text-[var(--text-muted)] mt-0.5">
-                        We'll email <span className="text-[var(--accent-brand)] font-mono">{watchEmail || customer?.email}</span>{' '}
+                        We&apos;ll email <span className="text-[var(--accent-brand)] font-mono">{watchEmail || customer?.email}</span>{' '}
                         the moment VIN <span className="text-[var(--accent-brand)] font-mono">{query}</span> appears in our feed.
                       </div>
                     </div>
@@ -761,7 +761,7 @@ export default function VinResultPage() {
                       <span className="font-mono text-[var(--text-primary)] normal-case tracking-normal">{query}</span> appears
                     </div>
                     <p className="text-[12px] text-[var(--text-muted)] leading-relaxed">
-                      We sync BidMotors every hour. If this vehicle shows up, you'll be the first to know —
+                      We sync BidMotors every hour. If this vehicle shows up, you&apos;ll be the first to know —
                       before managers, before competitors.
                     </p>
                     <div className="flex gap-2 items-stretch">
@@ -802,7 +802,7 @@ export default function VinResultPage() {
             >
               <div className="flex items-center gap-2 text-[12px] uppercase tracking-[0.2em] text-[var(--accent-brand)] mb-2">
                 <Sparkles size={14} />
-                [ {matches.length} matches for "{query}" ]
+                [ {matches.length} matches for &quot;{query}&quot; ]
               </div>
               <h3 className="text-[20px] md:text-[24px] font-bold text-[var(--text-primary)] mb-6">
                 Your partial VIN matches several vehicles — pick one to see the full card:

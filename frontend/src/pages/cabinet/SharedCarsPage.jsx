@@ -257,15 +257,15 @@ export default function SharedCarsPage() {
           <ShareNetwork size={48} weight="duotone" className="text-amber-300 mx-auto" />
           <h2 className="mt-3 text-[16px] font-semibold text-[#18181B]">You haven't shared any cars yet</h2>
           <p className="mt-1 text-[13px] text-[#71717A]">
-            Open any car from the catalog and tap the <strong>Share</strong> icon in the page header to send the listing to a friend.
+            Open any car from our selection and tap the <strong>Share</strong> icon in the page header to send the listing to a friend.
           </p>
           <Link
-            to="/catalog"
+            to="/#deals-budget-filter"
             className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-md bg-[#FEAE00] hover:bg-[#FFC233] text-[#1A1A1A] text-[13px] font-semibold"
             data-testid="shared-empty-cta"
           >
             <CheckCircle size={14} weight="bold" />
-            Browse catalog
+            Find a car
           </Link>
         </div>
       ) : (

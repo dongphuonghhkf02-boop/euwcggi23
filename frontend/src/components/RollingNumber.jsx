@@ -140,15 +140,20 @@ const RollingNumber = ({
 
   useEffect(() => {
     if (reducedMotion || safeTarget === 0) {
-      setValue(safeTarget);
-      setFrozen(true);
-      return undefined;
+      const id = setTimeout(() => {
+        setValue(safeTarget);
+        setFrozen(true);
+      }, 0);
+      return () => clearTimeout(id);
     }
 
     let cancelled = false;
     let current = startValue;
-    setValue(current);
-    setFrozen(false);
+    const initId = setTimeout(() => {
+      if (cancelled) return;
+      setValue(current);
+      setFrozen(false);
+    }, 0);
 
     const tick = () => {
       if (cancelled) return;
@@ -175,6 +180,7 @@ const RollingNumber = ({
 
     return () => {
       cancelled = true;
+      clearTimeout(initId);
       if (timerRef.current) window.clearTimeout(timerRef.current);
       if (freezeTimerRef.current) window.clearTimeout(freezeTimerRef.current);
     };

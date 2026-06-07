@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   LineChart,
   Line,
@@ -282,12 +282,7 @@ const AdminAnalyticsDashboard = () => {
   const [dashboard, setDashboard] = useState(null);
   const [marketing, setMarketing] = useState(null);
 
-  useEffect(() => {
-    fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [days, hostFilter]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -313,7 +308,13 @@ const AdminAnalyticsDashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [days, hostFilter]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => { if (!cancelled) await fetchData(); })();
+    return () => { cancelled = true; };
+  }, [fetchData]);
 
   if (loading) {
     return (

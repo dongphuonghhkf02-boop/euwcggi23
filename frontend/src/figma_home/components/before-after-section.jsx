@@ -55,7 +55,7 @@ const T = {
         date: "October 2026",
       },
       {
-        text: "Looked at four lots together, the manager honestly talked me out of two of them. Ended up with a perfect GLE 350d — no surprises on arrival.",
+        text: "Looked at four options together, the manager honestly talked me out of two of them. Ended up with a perfect GLE 350d — no surprises on arrival.",
         author: "Dmitry P.",
         date: "September 2026",
       },
@@ -84,7 +84,7 @@ const T = {
         date: "Октябрь 2026",
       },
       {
-        text: "Смотрели четыре лота вместе, менеджер честно отговорил от двух. В итоге забрал идеальный GLE 350d — никаких сюрпризов по приезду.",
+        text: "Смотрели четыре варианта вместе, менеджер честно отговорил от двух. В итоге забрал идеальный GLE 350d — никаких сюрпризов по приезду.",
         author: "Дмитрий П.",
         date: "Сентябрь 2026",
       },

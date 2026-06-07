@@ -127,7 +127,8 @@ const AutoModePanel = ({ config, onUpdate, loading }) => {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    setLocalConfig(config);
+    const id = setTimeout(() => setLocalConfig(config), 0);
+    return () => clearTimeout(id);
   }, [config]);
 
   const handleSave = async () => {
@@ -640,7 +641,9 @@ const MarketingControlPanel = () => {
   }, [days]);
 
   useEffect(() => {
-    fetchData();
+    let cancelled = false;
+    (async () => { if (!cancelled) await fetchData(); })();
+    return () => { cancelled = true; };
   }, [fetchData]);
 
   const handleUpdateConfig = async (newConfig) => {

@@ -264,6 +264,7 @@ const I18N = {
     fromUsaKorea: 'Из Европы',
     searchByVin: 'Какой автомобиль вы ищете?',
     calculate: 'Рассчитать',
+    allCatalogPlus: 'Показать ещё +',
     // Bracketed bilingual subtitles
     ourClientsReceive: 'Наши клиенты получают',
     theBestService: 'лучший сервис',
@@ -1823,7 +1824,7 @@ function MobileSearchFromAmericaKorea({ t }) {
       {/* Other brands + → links to the full catalog (single-action, no toggle). */}
       <div style={{ marginTop: 22, display: 'flex', justifyContent: 'center' }}>
         <a
-          href="/catalog"
+          href="/#deals-budget-filter"
           data-testid="mobile-other-brands"
           style={{
             background: 'transparent',
@@ -1972,12 +1973,12 @@ function MobileTopVehicleDeals({ t }) {
   useEffect(() => {
     const token = ++fetchTokenRef.current;
     let cancelled = false;
-    setLoading(true);
-    setLiveCars([]);
-    setLiveTotal(0);
-    setHasMore(true);
-    setIdx(0);
     (async () => {
+      setLoading(true);
+      setLiveCars([]);
+      setLiveTotal(0);
+      setHasMore(true);
+      setIdx(0);
       try {
         const r = await axios.get(`${API}/api/public/vehicles`, {
           params: buildParams(0),
@@ -2049,9 +2050,14 @@ function MobileTopVehicleDeals({ t }) {
 
   // Trigger lazy paging when approaching the loaded-tail edge.
   useEffect(() => {
-    if (idx >= loadedCount - DEALS_PREFETCH_GAP && hasMore && !loading) {
-      prefetchNextPage();
-    }
+    let cancelled = false;
+    (async () => {
+      if (cancelled) return;
+      if (idx >= loadedCount - DEALS_PREFETCH_GAP && hasMore && !loading) {
+        await prefetchNextPage();
+      }
+    })();
+    return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idx, loadedCount, hasMore, loading]);
 
@@ -2685,7 +2691,7 @@ function MobileTopVehicleDeals({ t }) {
       {/* 7 — MORE VEHICLES + (Mazzard H Medium 14) */}
       <div style={{ marginTop: 40 /* symmetric to card↔pager gap */, display: 'flex', justifyContent: 'center' }}>
         <a
-          href="/catalog"
+          href="/#deals-budget-filter"
           data-testid="mobile-deals-more-vehicles"
           style={{
             fontFamily: FONT,
@@ -3001,9 +3007,9 @@ function YearSelect({ value, onChange, placeholder, years, testid }) {
 /*   • Title:       "Calculate a car yourself" (orange) +                  */
 /*                  "with a price guarantee" (white), Mazzard H Bold 24px. */
 /*   • Subtitle:    "From the USA and Korea", H Medium 14px, white.        */
-/*   • VIN input:   294 wide, "Search by VIN or lot number", H Medium 14.  */
+/*   • VIN input:   294 wide, "Search a car", H Medium 14.                 */
 /*   • CALCULATE:   #FEAE00 button, Helvetica Now Display 14, black text.  */
-/*   • ALL CATALOG +: orange underlined link, H Medium 14.                 */
+/*   • SHOW MORE +: orange underlined link, H Medium 14.                   */
 /* ─────────────────────────────────────────────────────────────────────── */
 function MobileCalculateCar({ t }) {
   const FONT = "'Mazzard', 'Mazzard H', system-ui, -apple-system, sans-serif";
@@ -3251,7 +3257,7 @@ function MobileCalculateCar({ t }) {
             }}
           >
             <a
-              href="/catalog"
+              href="/#deals-budget-filter"
               data-testid="mobile-calc-all-catalog"
               style={{
                 fontFamily: FONT,
@@ -3266,7 +3272,7 @@ function MobileCalculateCar({ t }) {
                 letterSpacing: '0.06em',
               }}
             >
-              {t?.allCatalogPlus || 'All catalog +'}
+              {t?.allCatalogPlus || 'Show more +'}
             </a>
           </div>
         </div>
@@ -5618,6 +5624,24 @@ function MobileBeforeAndAfter({ items, activeIdx, setActiveIdx, t }) {
 /* Carousel uses the SAME IntersectionObserver + dominance ≥ 55% logic     */
 /* as the Before / After block so the counter is honest and stable.        */
 /* ─────────────────────────────────────────────────────────────────────── */
+// Module-scope helpers (kept stable across renders).
+const OurClientsStar = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 16 16" aria-hidden="true">
+    <path
+      d="M8 1.2l2.06 4.18 4.61.67-3.34 3.26.79 4.6L8 11.74l-4.12 2.17.79-4.6L1.33 6.05l4.61-.67L8 1.2z"
+      fill="#162E51"
+    />
+  </svg>
+);
+
+const resolveAvatarUrl = (u) => {
+  if (!u) return '';
+  if (/^https?:\/\//i.test(u)) return u;
+  if (u.startsWith('/figma/') || u.startsWith('/mobile/')) return u;
+  if (u.startsWith('/')) return `${API}${u}`;
+  return `${API}/${u}`;
+};
+
 function MobileOurClientsSay({ reviews, googleRating, googleReviewsCount, activeIdx, setActiveIdx, t }) {
   const FONT = "'Mazzard H', 'Mazzard', system-ui, -apple-system, sans-serif";
 
@@ -5700,23 +5724,7 @@ function MobileOurClientsSay({ reviews, googleRating, googleReviewsCount, active
   };
 
   // ── 5 yellow stars used in the Google rating block (80 × 16 block) ───
-  const Star = ({ size = 16 }) => (
-    <svg width={size} height={size} viewBox="0 0 16 16" aria-hidden="true">
-      <path
-        d="M8 1.2l2.06 4.18 4.61.67-3.34 3.26.79 4.6L8 11.74l-4.12 2.17.79-4.6L1.33 6.05l4.61-.67L8 1.2z"
-        fill="#162E51"
-      />
-    </svg>
-  );
-
-  // Resolve avatar image (backend-served / public / absolute http(s) URLs).
-  const fullMediaUrl = (u) => {
-    if (!u) return '';
-    if (/^https?:\/\//i.test(u)) return u;
-    if (u.startsWith('/figma/') || u.startsWith('/mobile/')) return u;
-    if (u.startsWith('/')) return `${API}${u}`;
-    return `${API}/${u}`;
-  };
+  // (defined below as module-scope `RatingStar` to avoid re-creation per render)
 
   return (
     <section
@@ -5809,7 +5817,7 @@ function MobileOurClientsSay({ reviews, googleRating, googleReviewsCount, active
                 justifyContent: 'space-between',
               }}
             >
-              <Star /><Star /><Star /><Star /><Star />
+              <OurClientsStar /><OurClientsStar /><OurClientsStar /><OurClientsStar /><OurClientsStar />
             </span>
           </div>
           <a
@@ -5911,7 +5919,7 @@ function MobileOurClientsSay({ reviews, googleRating, googleReviewsCount, active
               <header style={{ display: 'flex', alignItems: 'center', gap: 27 }}>
                 {r.image_url ? (
                   <img
-                    src={optimizeImage(fullMediaUrl(r.image_url), ImageSize.avatar)}
+                    src={optimizeImage(resolveAvatarUrl(r.image_url), ImageSize.avatar)}
                     alt={r.name || ''}
                     width={40}
                     height={40}

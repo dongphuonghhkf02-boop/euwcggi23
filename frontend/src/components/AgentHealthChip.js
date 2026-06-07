@@ -3,7 +3,7 @@
  * Индикатор состояния Chrome Extension агента
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Activity, AlertCircle } from 'lucide-react';
 import axios from 'axios';
 import { API_URL } from '../App';
@@ -20,13 +20,7 @@ export const AgentHealthChip = () => {
   const [health, setHealth] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    checkAgentHealth();
-    const interval = setInterval(checkAgentHealth, 15000); // Проверка каждые 15 сек
-    return () => clearInterval(interval);
-  }, []);
-
-  const checkAgentHealth = async () => {
+  const checkAgentHealth = useCallback(async () => {
     try {
       const res = await axios.get(`${API_URL}/api/agent/ping`);
       setHealth(res.data);
@@ -36,7 +30,14 @@ export const AgentHealthChip = () => {
       setHealth({ alive: false, message: t('i18n_verification_error_2ab0af') });
       setLoading(false);
     }
-  };
+  }, [t]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => { if (!cancelled) await checkAgentHealth(); })();
+    const interval = setInterval(checkAgentHealth, 15000); // Проверка каждые 15 сек
+    return () => { cancelled = true; clearInterval(interval); };
+  }, [checkAgentHealth]);
 
   if (loading) {
     return (
@@ -88,7 +89,7 @@ export const AgentHealthChip = () => {
               <div className="text-xs text-muted-foreground space-y-1">
                 <p>{t('i18n_to_fix_211508')}</p>
                 <ol className="list-decimal list-inside space-y-0.5">
-                  <li>{t('i18n_open_chrome_extensions_chrome_a4b021')}                   
+                  <li>{t('i18n_open_chrome_extensions_chrome_a4b021')}</li>
                   <li>{t('i18n_make_sure_bibi_cars_parser_is_4f1d66')}</li>
                   <li>{t('i18n_reload_extension_if_needed_db2769')}</li>
                 </ol>

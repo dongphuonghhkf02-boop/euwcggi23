@@ -74,13 +74,13 @@ const AnimatedHeading = ({
 
   useEffect(() => {
     if (reducedMotion) {
-      setVisible(true);
-      return undefined;
+      const id = setTimeout(() => setVisible(true), 0);
+      return () => clearTimeout(id);
     }
     const el = ref.current;
     if (!el || typeof IntersectionObserver === "undefined") {
-      setVisible(true);
-      return undefined;
+      const id = setTimeout(() => setVisible(true), 0);
+      return () => clearTimeout(id);
     }
 
     // If the element is already in view at mount (typical for hero / above-
@@ -94,10 +94,10 @@ const AnimatedHeading = ({
       // Use rAF so the initial paint definitely shows the hidden state
       // before the animation begins (otherwise React 18 batching may
       // flash the final state).
-      requestAnimationFrame(() => {
+      const raf1 = requestAnimationFrame(() => {
         requestAnimationFrame(() => setVisible(true));
       });
-      return undefined;
+      return () => cancelAnimationFrame(raf1);
     }
 
     const io = new IntersectionObserver(
