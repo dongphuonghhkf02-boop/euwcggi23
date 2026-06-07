@@ -103,26 +103,36 @@ const PromotionStatsPanel = ({ canManage = false }) => {
           `${API_URL}/api/ingestion/admin/stabilization/snapshot?window_minutes=5`,
         ),
       ]);
-      setData(dash.data?.data || null);
-      setSnap(sn.data?.data || null);
-      setErr(null);
-      setLastUpdate(Date.now());
+      const dashData = dash.data?.data || null;
+      const snData = sn.data?.data || null;
+      Promise.resolve().then(() => {
+        setData(dashData);
+        setSnap(snData);
+        setErr(null);
+        setLastUpdate(Date.now());
+        setLoading(false);
+      });
     } catch (e) {
-      setErr(e?.response?.data?.detail || e?.message || String(e));
-    } finally {
-      setLoading(false);
+      const errMsg = e?.response?.data?.detail || e?.message || String(e);
+      Promise.resolve().then(() => {
+        setErr(errMsg);
+        setLoading(false);
+      });
     }
   }, []);
 
   useEffect(() => {
-    fetchAll();
-    const t = setInterval(fetchAll, POLL_MS);
-    return () => clearInterval(t);
+    let cancelled = false;
+    const tick = async () => { if (!cancelled) await fetchAll(); };
+    tick();
+    const t = setInterval(tick, POLL_MS);
+    return () => { cancelled = true; clearInterval(t); };
   }, [fetchAll]);
 
   useEffect(() => {
-    tickRef.current = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(tickRef.current);
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    tickRef.current = id;
+    return () => clearInterval(id);
   }, []);
 
   const triggerParseNow = async () => {

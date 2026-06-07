@@ -72,6 +72,20 @@ function authHeaders() {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
+const ToolbarButton = ({ active, onClick, title, children, testId: tid, disabled }) => (
+  <button
+    type="button"
+    onMouseDown={(e) => e.preventDefault()}
+    onClick={onClick}
+    title={title}
+    disabled={disabled}
+    data-testid={tid}
+    className={`${styles.btn} ${active ? styles.btnActive : ''}`}
+  >
+    {children}
+  </button>
+);
+
 export default function RichTextEditor({ value, onChange, placeholder, testId }) {
   const { t } = useLang();
   const fileInputRef = useRef(null);
@@ -118,11 +132,13 @@ export default function RichTextEditor({ value, onChange, placeholder, testId })
 
   // Sync external value changes (language tab switch, load)
   useEffect(() => {
-    if (!editor) return;
-    if ((value || '') === editor.getHTML()) return;
-    editor.commands.setContent(value || '', false);
-    setSourceHtml(value || '');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (!editor) return undefined;
+    if ((value || '') === editor.getHTML()) return undefined;
+    const id = setTimeout(() => {
+      editor.commands.setContent(value || '', false);
+      setSourceHtml(value || '');
+    }, 0);
+    return () => clearTimeout(id);
   }, [value, editor]);
 
   const setFontSize = useCallback((px) => {
@@ -198,19 +214,7 @@ export default function RichTextEditor({ value, onChange, placeholder, testId })
 
   if (!editor) return null;
 
-  const Btn = ({ active, onClick, title, children, testId: tid, disabled }) => (
-    <button
-      type="button"
-      onMouseDown={(e) => e.preventDefault()}
-      onClick={onClick}
-      title={title}
-      disabled={disabled}
-      data-testid={tid}
-      className={`${styles.btn} ${active ? styles.btnActive : ''}`}
-    >
-      {children}
-    </button>
-  );
+  const Btn = ToolbarButton;
 
   return (
     <div className={styles.wrap} data-testid={testId}>

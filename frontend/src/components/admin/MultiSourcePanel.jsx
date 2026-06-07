@@ -216,9 +216,11 @@ const MultiSourcePanel = () => {
   }, []);
 
   useEffect(() => {
-    fetchAll();
-    const t = setInterval(fetchAll, POLL_INTERVAL);
-    return () => clearInterval(t);
+    let cancelled = false;
+    const tick = async () => { if (!cancelled) await fetchAll(); };
+    tick();
+    const t = setInterval(tick, POLL_INTERVAL);
+    return () => { cancelled = true; clearInterval(t); };
   }, [fetchAll]);
 
   const orderedSources = useMemo(() => {
